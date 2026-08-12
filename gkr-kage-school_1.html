@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GKR KAGE — Official School Website</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;800&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void:#08080a;
+    --bg-panel:#141317;
+    --bg-panel-alt:#1b1a1f;
+    --red:#c8102e;
+    --red-deep:#6f0e1c;
+    --red-glow:#ff3348;
+    --green:#2f9e52;
+    --green-glow:#4ade80;
+    --ink:#ece8e0;
+    --ink-dim:#8f8b87;
+    --ink-faint:#57534f;
+    --line:#28262b;
+    --line-soft:#1d1c20;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg-void);
+    color:var(--ink);
+    font-family:'Noto Sans Thai',sans-serif;
+    overflow-x:hidden;
+    position:relative;
+    min-height:100vh;
+  }
+  ::selection{background:var(--red-deep);color:var(--ink);}
+  .jp{font-family:'Shippori Mincho',serif;}
+  .en{font-family:'Oswald',sans-serif; letter-spacing:.08em;}
+
+  /* ---------- ambient background ---------- */
+  #ember-canvas{
+    position:fixed; inset:0; width:100%; height:100%;
+    z-index:0; pointer-events:none; opacity:.55;
+  }
+  .grain{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    opacity:.35; mix-blend-mode:overlay;
+  }
+  .vignette{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0,0,0,.65) 100%);
+  }
+
+  /* ---------- nav ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    background:linear-gradient(to bottom, rgba(8,8,10,.92), rgba(8,8,10,.75) 70%, transparent);
+    backdrop-filter:blur(6px);
+  }
+  .brand{display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none;}
+  .hanko{
+    width:38px; height:38px; border:2px solid var(--red); border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Shippori Mincho',serif; font-weight:800; font-size:19px;
+    color:var(--red); flex-shrink:0; transform:rotate(-2deg);
+    box-shadow:0 0 14px rgba(200,16,46,.35) inset;
+  }
+  .brand-text{display:flex; flex-direction:column; line-height:1;}
+  .brand-text .en{font-size:15px; font-weight:600; color:var(--ink); letter-spacing:.18em;}
+  .brand-text .sub{font-size:9px; color:var(--ink-faint); letter-spacing:.22em; margin-top:3px;}
+
+  nav.desktop-nav{display:flex; gap:2px;}
+  nav.desktop-nav button{
+    background:none; border:none; color:var(--ink-dim); font-family:'Noto Sans Thai',sans-serif;
+    font-size:12.5px; padding:8px 12px; cursor:pointer; position:relative;
+    transition:color .25s ease; letter-spacing:.02em;
+  }
+  nav.desktop-nav button::after{
+    content:''; position:absolute; left:12px; right:12px; bottom:2px; height:1px;
+    background:var(--red); transform:scaleX(0); transform-origin:left; transition:transform .3s ease;
+  }
+  nav.desktop-nav button:hover{color:var(--ink);}
+  nav.desktop-nav button.active{color:var(--red-glow);}
+  nav.desktop-nav button.active::after{transform:scaleX(1);}
+
+  .menu-btn{display:none; background:none; border:1px solid var(--line); color:var(--ink); width:38px; height:38px; border-radius:4px; cursor:pointer; font-size:18px;}
+
+  .drawer{
+    position:fixed; top:0; right:-100%; width:78%; max-width:320px; height:100vh; z-index:60;
+    background:var(--bg-panel); border-left:1px solid var(--line);
+    transition:right .35s cubic-bezier(.7,0,.2,1); padding:80px 26px 26px; overflow-y:auto;
+  }
+  .drawer.open{right:0;}
+  .drawer button{
+    display:block; width:100%; text-align:left; background:none; border:none; border-bottom:1px solid var(--line-soft);
+    color:var(--ink-dim); font-family:'Noto Sans Thai',sans-serif; font-size:15px; padding:14px 2px; cursor:pointer;
+  }
+  .drawer button.active{color:var(--red-glow);}
+  .drawer-overlay{position:fixed; inset:0; z-index:55; background:rgba(0,0,0,.6); opacity:0; pointer-events:none; transition:opacity .3s ease;}
+  .drawer-overlay.show{opacity:1; pointer-events:auto;}
+
+  /* ---------- layout ---------- */
+  main{position:relative; z-index:5;}
+  section{
+    min-height:100vh; padding:130px 8vw 100px; display:none;
+    animation:fadeUp .6s ease both;
+  }
+  section.active{display:block;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+
+  .chapter-eyebrow{
+    display:flex; align-items:center; gap:14px; margin-bottom:18px;
+  }
+  .chapter-num{font-family:'Shippori Mincho',serif; font-size:15px; color:var(--red); letter-spacing:.1em;}
+  .chapter-line{flex:1; height:1px; background:linear-gradient(to right, var(--line), transparent);}
+  .chapter-title{font-family:'Shippori Mincho',serif; font-weight:600; font-size:clamp(28px,4vw,46px); margin-bottom:6px;}
+  .chapter-en{font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:.35em; color:var(--ink-faint); text-transform:uppercase; margin-bottom:46px; display:block;}
+
+  /* ---------- HOME ---------- */
+  .hero{position:relative; min-height:86vh; display:flex; align-items:center;}
+  .hero-kanji{
+    position:absolute; right:-2vw; top:50%; transform:translateY(-50%);
+    font-family:'Shippori Mincho',serif; font-size:min(46vw,420px); color:var(--red);
+    opacity:.06; font-weight:800; line-height:1; pointer-events:none; user-select:none;
+  }
+  .hero-inner{position:relative; z-index:2; max-width:680px;}
+  .hero-eyebrow{font-family:'Oswald',sans-serif; letter-spacing:.4em; font-size:12px; color:var(--red-glow); margin-bottom:22px; display:block;}
+  .hero h1{font-family:'Shippori Mincho',serif; font-weight:800; font-size:clamp(46px,8vw,92px); line-height:1; margin-bottom:20px;}
+  .hero h1 span{color:var(--red);}
+  .hero p{color:var(--ink-dim); font-size:16px; line-height:1.9; max-width:520px; margin-bottom:38px;}
+  .btn-row{display:flex; gap:16px; flex-wrap:wrap;}
+  .btn{
+    font-family:'Noto Sans Thai',sans-serif; font-size:14px; padding:14px 30px; cursor:pointer;
+    border-radius:2px; transition:all .25s ease; letter-spacing:.02em; font-weight:500;
+  }
+  .btn-primary{background:var(--red); color:#fff; border:1px solid var(--red);}
+  .btn-primary:hover{background:var(--red-glow); box-shadow:0 0 22px rgba(255,51,72,.4);}
+  .btn-ghost{background:transparent; color:var(--ink); border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--red); color:var(--red-glow);}
+
+  .stat-strip{display:flex; gap:0; margin-top:70px; border-top:1px solid var(--line); flex-wrap:wrap;}
+  .stat{padding:22px 36px 0 0; border-right:1px solid var(--line); margin-right:36px;}
+  .stat .num{font-family:'Shippori Mincho',serif; font-size:30px; color:var(--red-glow);}
+  .stat .lbl{font-size:11px; color:var(--ink-faint); letter-spacing:.1em; margin-top:4px;}
+
+  /* ---------- generic card grid ---------- */
+  .grid{display:grid; gap:20px;}
+  .grid-3{grid-template-columns:repeat(3,1fr);}
+  .grid-2{grid-template-columns:repeat(2,1fr);}
+  @media(max-width:900px){.grid-3{grid-template-columns:1fr 1fr;} .grid-2{grid-template-columns:1fr;}}
+  @media(max-width:640px){.grid-3{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--bg-panel); border:1px solid var(--line); padding:26px;
+    position:relative; overflow:hidden; transition:border-color .3s ease, transform .3s ease;
+  }
+  .card:hover{border-color:var(--red-deep); transform:translateY(-3px);}
+  .card::before{
+    content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--red);
+    transition:height .3s ease;
+  }
+  .card:hover::before{height:100%;}
+
+  /* News */
+  .news-date{font-family:'Oswald',sans-serif; font-size:11px; color:var(--red-glow); letter-spacing:.15em; margin-bottom:10px;}
+  .news-card h3{font-family:'Shippori Mincho',serif; font-size:19px; margin-bottom:10px; font-weight:600;}
+  .news-card p{color:var(--ink-dim); font-size:13.5px; line-height:1.8;}
+  .tag{display:inline-block; font-size:10px; padding:3px 9px; border:1px solid var(--red-deep); color:var(--red-glow); letter-spacing:.1em; margin-top:14px;}
+
+  /* Rules */
+  .rule-list{counter-reset:rule; max-width:760px; margin-bottom:60px;}
+  .rule-item{
+    counter-increment:rule; display:flex; gap:20px; padding:20px 0; border-bottom:1px solid var(--line-soft);
+  }
+  .rule-item::before{
+    content:counter(rule,decimal-leading-zero); font-family:'Oswald',sans-serif; font-size:22px; color:var(--red-deep); flex-shrink:0; width:42px;
+  }
+  .rule-item h4{font-size:15.5px; margin-bottom:6px; font-weight:500;}
+  .rule-item p{color:var(--ink-dim); font-size:13px; line-height:1.75;}
+
+  table{width:100%; border-collapse:collapse; margin-top:10px;}
+  th,td{text-align:left; padding:14px 16px; border-bottom:1px solid var(--line-soft); font-size:13.5px;}
+  th{font-family:'Oswald',sans-serif; letter-spacing:.1em; font-size:11px; color:var(--ink-faint); text-transform:uppercase; border-bottom:1px solid var(--line);}
+  td{color:var(--ink-dim);}
+  td.sev{color:var(--red-glow); font-weight:500;}
+
+  /* Enroll form */
+  .form-wrap{max-width:640px; background:var(--bg-panel); border:1px solid var(--line); padding:40px; position:relative;}
+  .form-wrap::before{content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--red);}
+  .field{margin-bottom:22px;}
+  .field label{display:block; font-size:12px; color:var(--ink-faint); letter-spacing:.08em; margin-bottom:8px;}
+  .field input, .field select, .field textarea{
+    width:100%; background:var(--bg-void); border:1px solid var(--line); color:var(--ink);
+    padding:12px 14px; font-family:'Noto Sans Thai',sans-serif; font-size:14px; border-radius:2px;
+    transition:border-color .25s ease;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--red);}
+  .field textarea{resize:vertical; min-height:100px;}
+  .form-note{font-size:12px; color:var(--ink-faint); margin-top:18px; line-height:1.7;}
+  .confirm-msg{
+    display:none; margin-top:22px; padding:16px 18px; border:1px solid var(--red-deep); background:rgba(200,16,46,.08);
+    font-size:13.5px; color:var(--ink);
+  }
+  .confirm-msg.show{display:block; animation:fadeUp .4s ease both;}
+
+  /* Staff */
+  .staff-card{text-align:center; padding-top:34px;}
+  .staff-avatar{
+    width:74px; height:74px; margin:0 auto 18px; border-radius:50%; border:1px solid var(--red-deep);
+    display:flex; align-items:center; justify-content:center; font-family:'Shippori Mincho',serif; font-size:24px; color:var(--red-glow);
+    background:var(--bg-panel-alt);
+  }
+  .staff-card h3{font-size:16px; margin-bottom:5px; font-weight:600;}
+  .staff-role{font-family:'Oswald',sans-serif; font-size:10.5px; color:var(--red-glow); letter-spacing:.15em; margin-bottom:12px;}
+  .staff-card p{font-size:12.5px; color:var(--ink-dim); line-height:1.7;}
+
+  /* Students tabs */
+  .subtabs{display:flex; gap:10px; margin-bottom:34px; flex-wrap:wrap;}
+  .subtab{
+    background:none; border:1px solid var(--line); color:var(--ink-dim); padding:9px 20px; font-size:13px;
+    cursor:pointer; font-family:'Noto Sans Thai',sans-serif; transition:all .25s ease;
+  }
+  .subtab.active{border-color:var(--red); color:var(--red-glow);}
+  .class-row{display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--line-soft);}
+  .class-row .name{font-size:14.5px;}
+  .class-row .meta{font-size:12px; color:var(--ink-faint); text-align:right;}
+
+  /* Gangs */
+  .gang-card{padding:0; overflow:hidden;}
+  .gang-head{padding:26px 26px 20px; position:relative;}
+  .gang-emblem{
+    width:46px; height:46px; border:1px solid; display:flex; align-items:center; justify-content:center;
+    font-family:'Shippori Mincho',serif; font-size:20px; margin-bottom:16px; transform:rotate(-3deg);
+  }
+  .gang-card h3{font-family:'Shippori Mincho',serif; font-size:20px; margin-bottom:4px;}
+  .gang-motto{font-size:12px; color:var(--ink-faint); font-style:italic; margin-bottom:16px;}
+  .gang-card p{font-size:13px; color:var(--ink-dim); line-height:1.8;}
+  .gang-meta{display:flex; gap:22px; padding:16px 26px; border-top:1px solid var(--line-soft); background:var(--bg-panel-alt);}
+  .gang-meta div{font-size:11px; color:var(--ink-faint);}
+  .gang-meta strong{display:block; color:var(--ink); font-size:13px; margin-top:3px; font-weight:500;}
+
+  /* Schedule */
+  .sched-wrap{overflow-x:auto; border:1px solid var(--line);}
+  .sched-wrap table{min-width:640px; margin:0;}
+  .sched-wrap th{background:var(--bg-panel-alt);}
+  .sched-wrap td:first-child, .sched-wrap th:first-child{color:var(--red-glow); font-family:'Oswald',sans-serif; font-size:11.5px; letter-spacing:.05em;}
+
+  /* Contact */
+  .contact-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:40px;}
+  @media(max-width:800px){.contact-grid{grid-template-columns:1fr;}}
+  .contact-card{padding:30px;}
+  .contact-card h3{font-family:'Shippori Mincho',serif; font-size:18px; margin-bottom:10px;}
+  .contact-card p{color:var(--ink-dim); font-size:13.5px; line-height:1.8; margin-bottom:18px;}
+  .discord-box{
+    background:linear-gradient(135deg, var(--red-deep), var(--bg-panel)); border:1px solid var(--red);
+    padding:34px; text-align:center;
+  }
+  .discord-box .jp{font-size:38px; color:var(--red-glow); opacity:.5; margin-bottom:10px;}
+  .discord-box h3{font-family:'Shippori Mincho',serif; font-size:22px; margin-bottom:10px;}
+  .discord-box p{color:var(--ink-dim); font-size:13px; margin-bottom:22px;}
+
+  /* Submission detail modal */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:80; background:rgba(0,0,0,.72);
+    display:none; align-items:center; justify-content:center; padding:24px;
+    backdrop-filter:blur(3px);
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:var(--bg-panel); border:1px solid var(--red-deep); max-width:480px; width:100%;
+    padding:34px; position:relative; animation:fadeUp .3s ease both;
+  }
+  .modal-box::before{content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--red);}
+  .modal-close{
+    position:absolute; top:14px; right:16px; background:none; border:none; color:var(--ink-faint);
+    font-size:16px; cursor:pointer; transition:color .2s ease;
+  }
+  .modal-close:hover{color:var(--red-glow);}
+  .detail-row{padding:12px 0; border-bottom:1px solid var(--line-soft);}
+  .detail-row:last-child{border-bottom:none;}
+  .detail-row .k{font-size:11px; color:var(--ink-faint); letter-spacing:.1em; margin-bottom:5px;}
+  .detail-row .v{font-size:14.5px; color:var(--ink); line-height:1.7;}
+  .submission-card{cursor:pointer;}
+
+  /* ---------- auth gate ---------- */
+  .app-hidden{display:none !important;}
+  .auth-gate{
+    position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
+    padding:24px; background:rgba(8,8,10,.88); backdrop-filter:blur(4px);
+  }
+  .auth-box{
+    background:var(--bg-panel); border:1px solid var(--red-deep); max-width:420px; width:100%;
+    padding:38px 34px; position:relative; animation:fadeUp .5s ease both;
+  }
+  .auth-box::before{content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--red);}
+  .auth-brand{display:flex; align-items:center; gap:12px; margin-bottom:30px;}
+  .auth-brand .hanko{transform:rotate(-2deg);}
+  .auth-brand .en{font-size:15px; font-weight:600; letter-spacing:.18em;}
+  .auth-tabs{display:flex; border:1px solid var(--line); margin-bottom:26px;}
+  .auth-tab{flex:1; background:none; border:none; color:var(--ink-dim); padding:11px 0; font-size:13.5px; cursor:pointer; font-family:'Noto Sans Thai',sans-serif; transition:all .25s ease;}
+  .auth-tab.active{background:var(--red-deep); color:var(--ink);}
+  .auth-error{display:none; margin-top:14px; padding:12px 14px; border:1px solid var(--red); background:rgba(200,16,46,.1); font-size:12.5px; color:var(--red-glow);}
+  .auth-error.show{display:block; animation:fadeUp .3s ease both;}
+  .admin-subtabs{display:flex; gap:8px; margin-bottom:28px; flex-wrap:wrap;}
+  .admin-subtab{
+    background:none; border:1px solid var(--line); color:var(--ink-dim); padding:8px 16px; font-size:12.5px;
+    cursor:pointer; font-family:'Noto Sans Thai',sans-serif; transition:all .25s ease;
+  }
+  .admin-subtab.active{border-color:var(--red); color:var(--red-glow);}
+  .admin-panel-body{display:none;}
+  .admin-panel-body.active{display:block;}
+  .admin-row{display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line-soft); gap:12px;}
+  .admin-row .info{font-size:13px; color:var(--ink-dim); flex:1;}
+  .admin-row .info strong{color:var(--ink); display:block; margin-bottom:2px; font-size:14px;}
+  .btn-del{background:none; border:1px solid var(--red-deep); color:var(--red-glow); padding:6px 14px; font-size:11.5px; cursor:pointer; flex-shrink:0;}
+  .btn-del:hover{background:var(--red-deep);}
+  .year-select{
+    background:var(--bg-void); border:1px solid var(--line); color:var(--red-glow);
+    font-family:'Noto Sans Thai',sans-serif; font-size:12.5px; padding:6px 10px; cursor:pointer; flex-shrink:0;
+  }
+  .year-select:focus{outline:none; border-color:var(--red);}
+
+  .music-btn{
+    position:fixed; bottom:24px; right:24px; z-index:40;
+    width:48px; height:48px; border-radius:50%;
+    background:var(--bg-panel); border:1px solid var(--red-deep); color:var(--red-glow);
+    font-size:19px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:all .25s ease; box-shadow:0 4px 18px rgba(0,0,0,.4);
+  }
+  .music-btn:hover{border-color:var(--red); box-shadow:0 0 18px rgba(255,51,72,.35);}
+  .music-btn.playing{color:var(--ink); background:var(--red-deep);}
+  @media(max-width:900px){.music-btn{bottom:18px; right:18px;}}
+  .admin-form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:640px){.admin-form-grid{grid-template-columns:1fr;}}
+
+  footer{
+    position:relative; z-index:5; border-top:1px solid var(--line); padding:34px 8vw;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+  }
+  footer .en{font-size:11px; color:var(--ink-faint); letter-spacing:.1em;}
+
+  @media(max-width:900px){
+    nav.desktop-nav{display:none;}
+    .menu-btn{display:block;}
+    section{padding:120px 6vw 80px;}
+    .contact-grid{gap:26px;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important; transition-duration:.01ms !important;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="ember-canvas"></canvas>
+
+<button id="musicBtn" class="music-btn app-hidden" onclick="toggleMusic()" title="เพลงประกอบเว็บไซต์">
+  <span id="musicIcon">🎵</span>
+</button>
+<div id="ytFrameWrap" style="position:fixed; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;"></div>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-brand">
+      <div class="hanko">影</div>
+      <span class="en">GKR KAGE</span>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab" id="tabLogin" onclick="setAuthMode('login')">เข้าสู่ระบบ</button>
+      <button class="auth-tab active" id="tabSignup" onclick="setAuthMode('signup')">สมัครสมาชิก</button>
+    </div>
+    <div class="field">
+      <label>ชื่อ Discord</label>
+      <input type="text" id="authDiscord" placeholder="username หรือ @username">
+    </div>
+    <div class="field">
+      <label>ชื่อในโรงเรียน</label>
+      <input type="text" id="authSchoolName" placeholder="เช่น Taro Kagemura">
+    </div>
+    <button class="btn btn-primary" style="width:100%" id="authSubmitBtn" onclick="submitAuth()">สมัครสมาชิก</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<header id="siteHeader" class="app-hidden">
+  <div class="brand" onclick="goTo('home')">
+    <div class="hanko">影</div>
+    <div class="brand-text">
+      <span class="en">GKR KAGE</span>
+      <span class="sub">OFFICIAL SCHOOL SITE</span>
+    </div>
+  </div>
+  <nav class="desktop-nav" id="desktopNav"></nav>
+  <button class="menu-btn" onclick="toggleDrawer(true)">☰</button>
+</header>
+
+<div class="drawer-overlay app-hidden" id="overlay" onclick="toggleDrawer(false)"></div>
+<div class="drawer app-hidden" id="drawer"></div>
+
+<main id="siteMain" class="app-hidden">
+
+  <!-- 1: HOME -->
+  <section id="home" class="active">
+    <div class="hero">
+      <div class="hero-kanji">影</div>
+      <div class="hero-inner">
+        <span class="hero-eyebrow">第一章 ・ 到着 — ARRIVAL</span>
+        <h1>GKR<br><span>KAGE</span></h1>
+        <p>โรงเรียน GKR KAGE ไม่ได้สอนแค่วิชาการ แต่สอนให้รู้จักเกียรติ ความภักดี และกฎของเงาที่ไม่มีใครเขียนไว้ในตำรา ที่นี่คือสนามที่ตัวตนของนักเรียนถูกพิสูจน์ทุกวัน — ไม่ว่าคุณจะมาเพื่อเรียนรู้ หรือมาเพื่อสร้างชื่อในหมู่แก๊ง</p>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="goTo('enroll')">สมัครเข้าเรียน</button>
+          <button class="btn btn-ghost" onclick="window.open('https://discord.gg/Y6pZG78bh','_blank')">เข้า Discord</button>
+        </div>
+        <div class="stat-strip">
+          <div class="stat"><div class="num">03</div><div class="lbl">ระดับชั้นปี</div></div>
+          <div class="stat"><div class="num">Soon</div><div class="lbl">ระบบขึ้นทะเบียนแก๊ง</div></div>
+          <div class="stat"><div class="num">24/7</div><div class="lbl">เปิดรับการติดต่อ</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2: NEWS -->
+  <section id="news">
+    <div class="chapter-eyebrow"><span class="chapter-num jp">第二章</span><span class="chapter-line"></span></div>
+    <h2 class="chapter-title">ข่าวสาร</h2>
+    <span class="chapter-en">School Announcements</span>
+
+    <div class="grid grid-3" id="newsGrid"></div>
+  </section>
+
+  <!-- 3: RULES -->
+  <section id="rules">
+    <div class="chapter-eyebrow"><span class="chapter-num jp">第三章</span><span class="chapter-line"></span></div>
+    <h2 class="chapter-title">กฎระเบียบ</h2>
+    <span class="chapter-en">The Code — 掟</span>
+
+    <div class="rule-list">
+      <div class="rule-item">
+        <div><h4>เคารพลำดับชั้นและครูอาจารย์</h4><p>นักเรียนทุกคนต้องให้เกียรติครู ฝ่ายปกครอง และรุ่นพี่ตามระเบียบโรงเรียน การไม่เคารพถือเป็นความผิดร้ายแรง</p></div>
+      </div>
+      <div class="rule-item">
+        <div><h4>ห้ามใช้ความรุนแรงนอกพื้นที่ที่กำหนด</h4><p>ข้อพิพาทระหว่างแก๊งหรือนักเรียนต้องยุติในพื้นที่และเวลาที่ฝ่ายปกครองอนุญาตเท่านั้น</p></div>
+      </div>
+      <div class="rule-item">
+        <div><h4>แต่งกายให้ถูกระเบียบโรงเรียน</h4><p>ชุดนักเรียนต้องเรียบร้อยตามแบบที่กำหนด งดการดัดแปลงเครื่องแบบโดยไม่ได้รับอนุญาต</p></div>
+      </div>
+      <div class="rule-item">
+        <div><h4>ห้ามพกอาวุธเข้าบริเวณโรงเรียน</h4><p>การพกพาสิ่งของอันตรายเข้าเขตโรงเรียนถือเป็นความผิดขั้นรุนแรงที่สุด</p></div>
+      </div>
+      <div class="rule-item">
+        <div><h4>ปฏิบัติตามคำสั่งฝ่ายปกครองเมื่อมีการเรียก</h4><p>เมื่อถูกเรียกพบฝ่ายปกครองต้องเข้าพบทันที การหลบหนีจะเพิ่มระดับความผิด</p></div>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>ระดับความผิด</th><th>ตัวอย่าง</th><th>บทลงโทษ</th></tr></thead>
+      <tbody>
+        <tr><td class="sev">ระดับ 1</td><td>แต่งกายผิดระเบียบ, มาสาย</td><td>ตักเตือนด้วยวาจา + บันทึกชื่อ</td></tr>
+        <tr><td class="sev">ระดับ 2</td><td>ทะเลาะวิวาทเล็กน้อย, หนีเรียน</td><td>ตัดคะแนนความประพฤติ + แจ้งผู้ปกครอง</td></tr>
+        <tr><td class="sev">ระดับ 3</td><td>ก่อเหตุรุนแรงในพื้นที่ต้องห้าม</td><td>พักการเรียนชั่วคราว</td></tr>
+        <tr><td class="sev">ระดับ 4</td><td>พกอาวุธ, ทำร้ายครู/ฝ่ายปกครอง</td><td>ไล่ออกทันที</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4: ENROLL -->
+  <section id="enroll">
+    <div class="chapter-eyebrow"><span class="chapter-num jp">第四章</span><span class="chapter-line"></span></div>
+    <h2 class="chapter-title">สมัครเข้าเรียน</h2>
+    <span class="chapter-en">Admission — 入門</span>
+
+    <div id="enrollStatus"></div>
+
+    <div class="form-wrap" id="enrollFormWrap">
+      <div class="field">
+        <label>ชื่อ-นามสกุลในเกม (In-game name)</label>
+        <input type="text" id="fName" placeholder="เช่น Taro Kagemura">
+      </div>
+      <div class="field">
+        <label>Discord ID</label>
+        <input type="text" id="fDiscord" placeholder="username#0000 หรือ @username">
+      </div>
+      <div class="field">
+        <label>ระดับชั้นที่ต้องการสมัคร</label>
+        <select id="fYear">
+          <option>ปี 1</option>
+          <option>ปี 2</option>
+          <option>ปี 3</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>เหตุผลที่อยากเข้าเรียนที่ GKR KAGE</label>
+        <textarea id="fReason" placeholder="เล่าเหตุผลของคุณสั้น ๆ..."></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="submitForm()">ส่งใบสมัคร</button>
+      <div class="form-note">ใบสมัครจะถูกส่งให้ฝ่ายปกครองตรวจสอบผ่าน Discord ของโรงเรียน กรุณารอการติดต่อกลับภายใน 24–48 ชั่วโมง</div>
+      <div class="confirm-msg" id="confirmMsg">✓ รับใบสมัครแล้ว — โปรดรอทีมงานติดต่อกลับทาง Discord ที่ท่านระบุไว้</div>
+    </div>
+  </section>
+
+  <!-- 5: STAFF -->
+  <section id="staff">
+    <div class="chapter-eyebrow"><span class="chapter-num jp">第五章</span><span class="chapter-line"></span></div>
+    <h2 class="chapter-title">บุคลากร</h2>
+    <span class="chapter-en">Faculty — 師</span>
+
+    <div class="grid grid-3" id="staffGrid"></div>
+  </section>
+
+  <!-- 6: STUDENTS -->
+  <section id="students">
+    <div class="chapter-eyebrow"><span class="chapter-num jp">第六章</span><span class="chapter-line"></span></div>
+    <h2 class="chapter-title">นักเรียน</h2>
+    <span class="chapter-en">Students — 生徒</span>
+
+    <div class="subtabs" id="yearTabs"></div>
+    <div class="card" id="yearContent" style="padding:8px 24px;"></div>
+  </section>
+
+  <!-- 7: GANGS -->
+  <section id="gangs">
+    <div class="chapter-eyebrow"><span class="chapter-num jp">第七章</span><span class="chapter-line"></span></div>
+    <h2 class="chapter-title">แก๊ง</h2>
+    <span class="chapter-en">Factions — 影</span>
+
+    <div id="gangsContent"></div>
+  </section>
+
+  <!-- 8: SCHEDULE -->
+  <section id="schedule">
+    <div class="chapter-eyebrow"><span class="chapter-num jp">第八章</span><span class="chapter-line"></span></div>
+    <h2 class="chapter-title">ตารางเรียน</h2>
+    <span class="chapter-en">Schedule — 時間割</span>
+
+    <div class="subtabs" id="schedTabs"></div>
+    <div class="sched-wrap"><table id="schedTable"></table></div>
+  </section>
+
+  <!-- 9: CONTACT -->
+  <section id="contact">
+    <div class="chapter-eyebrow"><span class="chapter-num jp">第九章</span><span class="chapter-line"></span></div>
+    <h2 class="chapter-title">ติดต่อเรา</h2>
+    <span class="chapter-en">Connect — 繋</span>
+
+    <div class="contact-grid">
+      <div class="discord-box">
+        <div class="jp">影</div>
+        <h3>Discord ประจำโรงเรียน</h3>
+        <p>ช่องทางหลักสำหรับประกาศ ยื่นใบสมัคร ติดต่อฝ่ายปกครอง และกิจกรรมของแก๊งต่าง ๆ</p>
+        <button class="btn btn-primary" onclick="window.open('https://discord.gg/Y6pZG78bh','_blank')">เข้าร่วม Discord</button>
+      </div>
+      <div>
+        <div class="card contact-card">
+          <h3>ฝ่ายปกครอง</h3>
+          <p>สำหรับเรื่องร้องเรียน ความประพฤติ และเหตุฉุกเฉินภายในโรงเรียน</p>
+          <span class="tag">ติดต่อผ่านช่อง #ฝ่ายปกครอง</span>
+        </div>
+        <div class="card contact-card" style="margin-top:18px;">
+          <h3>ฝ่ายทะเบียน</h3>
+          <p>สอบถามเรื่องการสมัครเรียน เอกสาร และสถานะใบสมัคร</p>
+          <span class="tag">ติดต่อผ่านช่อง #ทะเบียน</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BACKEND / ADMIN REVIEW -->
+  <section id="backend">
+    <div class="chapter-eyebrow"><span class="chapter-num jp">特別</span><span class="chapter-line"></span></div>
+    <h2 class="chapter-title">หลังบ้าน</h2>
+    <span class="chapter-en">Reviewer Access — Restricted</span>
+
+    <div id="gateWrap" class="form-wrap" style="max-width:480px;">
+      <div class="field">
+        <label>ชื่อ-ยศผู้ตรวจสอบเว็บไซต์</label>
+        <input type="text" id="gateInput" placeholder="พิมพ์ชื่อ-ยศของคุณ">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="checkGate()">เข้าสู่ระบบ</button>
+      <div id="gateError" class="confirm-msg" style="border-color:var(--red); color:var(--red-glow);"></div>
+    </div>
+
+    <div id="adminPanel" style="display:none;">
+      <div class="card" style="margin-bottom:24px;">
+        <h3 class="jp" style="font-size:18px;">ยินดีต้อนรับ, Kurasuno Yukimura</h3>
+        <p style="color:var(--ink-dim); font-size:13px; margin-top:8px;">จัดการเนื้อหาทุกส่วนของเว็บไซต์จากแผงนี้ — การเปลี่ยนแปลงจะแสดงผลทันทีบนหน้าเว็บ (ข้อมูลจะรีเซ็ตเมื่อโหลดหน้าใหม่ เพราะเว็บนี้ยังไม่มีฐานข้อมูลถาวร)</p>
+      </div>
+
+      <div class="admin-subtabs" id="adminTabs"></div>
+
+      <!-- ใบสมัคร -->
+      <div class="admin-panel-body" id="admin-submissions">
+        <div id="submissionList"></div>
+      </div>
+
+      <!-- ข่าวสาร -->
+      <div class="admin-panel-body" id="admin-news">
+        <div class="form-wrap" style="margin-bottom:26px;">
+          <div class="admin-form-grid">
+            <div class="field"><label>หัวข้อข่าว</label><input type="text" id="nTitle"></div>
+            <div class="field"><label>แท็ก</label><input type="text" id="nTag" placeholder="เช่น ฝ่ายปกครอง"></div>
+          </div>
+          <div class="field"><label>วันที่ / หมวด</label><input type="text" id="nDate" placeholder="เช่น 12 ส.ค. — ประกาศทั่วไป"></div>
+          <div class="field"><label>เนื้อหาข่าว</label><textarea id="nDesc"></textarea></div>
+          <button class="btn btn-primary" style="width:100%" onclick="addNews()">เพิ่มข่าว</button>
+        </div>
+        <div id="newsAdminList"></div>
+      </div>
+
+      <!-- แก๊ง -->
+      <div class="admin-panel-body" id="admin-gangs">
+        <div class="form-wrap" style="margin-bottom:26px;">
+          <div class="admin-form-grid">
+            <div class="field"><label>ชื่อแก๊ง</label><input type="text" id="gName" placeholder="เช่น 紅蠍 — เบนิซาโซริ"></div>
+            <div class="field"><label>ตัวอักษรสัญลักษณ์</label><input type="text" id="gEmblem" maxlength="2" placeholder="เช่น 紅"></div>
+            <div class="field"><label>คำขวัญ</label><input type="text" id="gMotto"></div>
+            <div class="field"><label>พื้นที่</label><input type="text" id="gTerritory"></div>
+            <div class="field"><label>จำนวนสมาชิก</label><input type="text" id="gMembers" placeholder="เช่น 12 คน"></div>
+          </div>
+          <div class="field"><label>คำอธิบาย</label><textarea id="gDesc"></textarea></div>
+          <button class="btn btn-primary" style="width:100%" onclick="addGang()">เพิ่มแก๊ง</button>
+        </div>
+        <div id="gangAdminList"></div>
+      </div>
+
+      <!-- บุคลากร -->
+      <div class="admin-panel-body" id="admin-staff">
+        <div class="form-wrap" style="margin-bottom:26px;">
+          <div class="admin-form-grid">
+            <div class="field"><label>ชื่อ</label><input type="text" id="sfName"></div>
+            <div class="field"><label>ตำแหน่ง</label><input type="text" id="sfRole"></div>
+          </div>
+          <div class="field"><label>คำอธิบาย</label><textarea id="sfDesc"></textarea></div>
+          <button class="btn btn-primary" style="width:100%" onclick="addStaff()">เพิ่มบุคลากร</button>
+        </div>
+        <div id="staffAdminList"></div>
+      </div>
+
+      <!-- นักเรียน -->
+      <div class="admin-panel-body" id="admin-students">
+        <div class="form-wrap" style="margin-bottom:26px;">
+          <div class="admin-form-grid">
+            <div class="field"><label>ชื่อนักเรียน</label><input type="text" id="stuName" placeholder="เช่น Taro Kagemura"></div>
+            <div class="field"><label>ระดับชั้น</label>
+              <select id="stuYear"><option>ปี 1</option><option>ปี 2</option><option>ปี 3</option></select>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="addStudent()">เพิ่มนักเรียน</button>
+        </div>
+        <div id="studentAdminList"></div>
+      </div>
+
+      <!-- ตารางเรียน -->
+      <div class="admin-panel-body" id="admin-schedule">
+        <div class="form-wrap" style="margin-bottom:26px;">
+          <div class="field"><label>ระดับชั้น</label>
+            <select id="scYear"><option>ปี 1</option><option>ปี 2</option><option>ปี 3</option></select>
+          </div>
+          <div class="admin-form-grid">
+            <div class="field"><label>วิชาที่ 1</label><input type="text" id="sc1"></div>
+            <div class="field"><label>วิชาที่ 2</label><input type="text" id="sc2"></div>
+            <div class="field"><label>วิชาที่ 3</label><input type="text" id="sc3"></div>
+            <div class="field"><label>วิชาที่ 4</label><input type="text" id="sc4"></div>
+            <div class="field"><label>วิชาที่ 5</label><input type="text" id="sc5"></div>
+          </div>
+          <div class="form-note">ระบบจะใช้ 5 วิชานี้วนสร้างตารางคาบ 1–5 ของวันจันทร์–ศุกร์ให้อัตโนมัติ</div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="saveSchedule()">บันทึกตารางของระดับชั้นนี้</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal-overlay" id="detailOverlay" onclick="closeDetail(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeDetail()">✕</button>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer id="siteFooter" class="app-hidden">
+  <span class="en jp" style="color:var(--red-glow); font-size:14px;">影</span>
+  <span class="en">GKR KAGE — OFFICIAL SCHOOL WEBSITE © 2026</span>
+  <span class="en" style="cursor:pointer; text-decoration:underline; text-underline-offset:3px;" onclick="goTo('backend')">ผู้ตรวจสอบเว็บไซต์</span>
+</footer>
+
+<script>
+/* ---------------- auth gate (login / signup) ---------------- */
+let accounts = [];
+let authMode = 'signup';
+function setAuthMode(mode){
+  authMode = mode;
+  document.getElementById('tabLogin').classList.toggle('active', mode==='login');
+  document.getElementById('tabSignup').classList.toggle('active', mode==='signup');
+  document.getElementById('authSubmitBtn').textContent = mode==='login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
+  document.getElementById('authError').classList.remove('show');
+}
+function submitAuth(){
+  const discord = document.getElementById('authDiscord').value.trim();
+  const schoolName = document.getElementById('authSchoolName').value.trim();
+  const errBox = document.getElementById('authError');
+  if(!discord || !schoolName){
+    errBox.textContent = 'กรุณากรอกชื่อ Discord และชื่อในโรงเรียนให้ครบ';
+    errBox.classList.add('show');
+    return;
+  }
+  const key = discord.toLowerCase();
+  if(authMode === 'signup'){
+    if(accounts.some(a=>a.discord.toLowerCase()===key)){
+      errBox.textContent = 'มีบัญชี Discord นี้อยู่แล้ว กรุณาเข้าสู่ระบบแทน';
+      errBox.classList.add('show');
+      return;
+    }
+    accounts.push({discord, schoolName});
+    grantAccess(discord, schoolName);
+  } else {
+    const found = accounts.find(a=>a.discord.toLowerCase()===key && a.schoolName.toLowerCase()===schoolName.toLowerCase());
+    if(!found){
+      errBox.textContent = 'ไม่พบบัญชีนี้ กรุณาสมัครสมาชิกก่อนเข้าสู่ระบบ';
+      errBox.classList.add('show');
+      return;
+    }
+    grantAccess(found.discord, found.schoolName);
+  }
+}
+let currentUser = null;
+function grantAccess(discord, schoolName){
+  currentUser = {discord, schoolName};
+  document.getElementById('authGate').classList.add('app-hidden');
+  ['siteHeader','overlay','drawer','siteMain','siteFooter','musicBtn'].forEach(id=>{
+    document.getElementById(id).classList.remove('app-hidden');
+  });
+}
+
+/* ---------------- background music ---------------- */
+const YT_VIDEO_ID = 'QhWArWvpqDM';
+let musicPlaying = false;
+function toggleMusic(){
+  const wrap = document.getElementById('ytFrameWrap');
+  const icon = document.getElementById('musicIcon');
+  const btn = document.getElementById('musicBtn');
+  if(!musicPlaying){
+    wrap.innerHTML = `<iframe width="1" height="1" src="https://www.youtube.com/embed/${YT_VIDEO_ID}?autoplay=1&loop=1&playlist=${YT_VIDEO_ID}" allow="autoplay" frameborder="0"></iframe>`;
+    icon.textContent = '⏸';
+    btn.classList.add('playing');
+    musicPlaying = true;
+  } else {
+    wrap.innerHTML = '';
+    icon.textContent = '🎵';
+    btn.classList.remove('playing');
+    musicPlaying = false;
+  }
+}
+
+/* ---------------- navigation ---------------- */
+const pages = [
+  {id:'home', th:'หน้าแรก'},
+  {id:'news', th:'ข่าวสาร'},
+  {id:'rules', th:'กฎระเบียบ'},
+  {id:'enroll', th:'สมัครเข้าเรียน'},
+  {id:'staff', th:'บุคลากร'},
+  {id:'students', th:'นักเรียน'},
+  {id:'gangs', th:'แก๊ง'},
+  {id:'schedule', th:'ตารางเรียน'},
+  {id:'contact', th:'ติดต่อเรา'}
+];
+
+const desktopNav = document.getElementById('desktopNav');
+const drawer = document.getElementById('drawer');
+pages.forEach(p=>{
+  const b1 = document.createElement('button');
+  b1.textContent = p.th; b1.dataset.id = p.id;
+  b1.onclick = ()=>goTo(p.id);
+  desktopNav.appendChild(b1);
+
+  const b2 = document.createElement('button');
+  b2.textContent = p.th; b2.dataset.id = p.id;
+  b2.onclick = ()=>{goTo(p.id); toggleDrawer(false);};
+  drawer.appendChild(b2);
+});
+
+function goTo(id){
+  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('nav.desktop-nav button, .drawer button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.id===id);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(id === 'enroll' && typeof renderEnrollStatus === 'function') renderEnrollStatus();
+}
+goTo('home');
+
+function toggleDrawer(open){
+  document.getElementById('drawer').classList.toggle('open', open);
+  document.getElementById('overlay').classList.toggle('show', open);
+}
+
+/* ---------------- enroll form ---------------- */
+const submissions = [];
+function submitForm(){
+  const name = document.getElementById('fName').value.trim();
+  const discord = document.getElementById('fDiscord').value.trim();
+  const year = document.getElementById('fYear').value;
+  const reason = document.getElementById('fReason').value.trim();
+  if(!name || !discord){ return; }
+  const existingIndex = submissions.findIndex(s=>s.discord.toLowerCase()===discord.toLowerCase());
+  const entry = {name, discord, year, reason, time: new Date().toLocaleString('th-TH'), status:'pending'};
+  if(existingIndex > -1){
+    submissions[existingIndex] = entry;
+  } else {
+    submissions.unshift(entry);
+  }
+  document.getElementById('confirmMsg').classList.add('show');
+  if(typeof renderSubmissions === 'function') renderSubmissions();
+  if(typeof renderEnrollStatus === 'function') renderEnrollStatus();
+}
+function renderEnrollStatus(){
+  const box = document.getElementById('enrollStatus');
+  const formWrap = document.getElementById('enrollFormWrap');
+  if(!box || !formWrap) return;
+  if(!currentUser){ box.innerHTML=''; formWrap.style.display=''; return; }
+  const mine = submissions.find(s=>s.discord.toLowerCase()===currentUser.discord.toLowerCase());
+  if(!mine){
+    box.innerHTML = '';
+    formWrap.style.display = '';
+    return;
+  }
+  if(mine.status === 'approved'){
+    box.innerHTML = `<div class="card" style="border-color:var(--green); margin-bottom:24px;">
+      <h3 style="font-family:'Shippori Mincho',serif; font-size:18px; color:var(--green-glow); margin-bottom:8px;">ใบสมัครของคุณผ่านการตรวจสอบแล้ว ✓</h3>
+      <p style="color:var(--ink-dim); font-size:13px;">ยินดีต้อนรับสู่ GKR KAGE, ${mine.name} — คุณถูกบันทึกเป็นนักเรียน${mine.year}เรียบร้อยแล้ว</p>
+    </div>`;
+    formWrap.style.display = 'none';
+  } else if(mine.status === 'rejected'){
+    box.innerHTML = `<div class="card" style="border-color:var(--red); margin-bottom:24px;">
+      <h3 style="font-family:'Shippori Mincho',serif; font-size:18px; color:var(--red-glow); margin-bottom:8px;">ใบสมัครของคุณไม่ผ่านการตรวจสอบ</h3>
+      <p style="color:var(--ink-dim); font-size:13px;">เราตรวจสอบ Discord ของคุณแล้วไม่พบ กรุณาตรวจสอบข้อมูลด้านล่างให้ถูกต้องแล้วส่งใบสมัครใหม่อีกครั้ง</p>
+    </div>`;
+    formWrap.style.display = '';
+    document.getElementById('fName').value = mine.name;
+    document.getElementById('fDiscord').value = mine.discord;
+    document.getElementById('fYear').value = mine.year;
+    document.getElementById('fReason').value = mine.reason;
+  } else {
+    box.innerHTML = `<div class="card" style="margin-bottom:24px;">
+      <p style="color:var(--ink-dim); font-size:13px;">ใบสมัครของคุณอยู่ระหว่างการตรวจสอบ กรุณารอการติดต่อกลับ</p>
+    </div>`;
+    formWrap.style.display = 'none';
+  }
+}
+
+/* ---------------- content data (single source of truth) ---------------- */
+let newsItems = [
+  {date:'12 ส.ค. — ประกาศทั่วไป', title:'ปิดปรับปรุงระบบรักษาความปลอดภัยโรงเรียน', desc:'ฝ่ายปกครองแจ้งปิดปรับปรุงกล้องวงจรปิดและระบบรักษาความปลอดภัยบริเวณลานหลังอาคาร 3 ชั่วคราว นักเรียนที่พบเห็นความผิดปกติให้แจ้งครูเวรทันที', tag:'ฝ่ายปกครอง'},
+  {date:'08 ส.ค. — กิจกรรม', title:'เทศกาลกีฬาสีประจำเทอม "紅白戦"', desc:'เปิดรับสมัครนักเรียนทุกปีเข้าร่วมกิจกรรมกีฬาสีแบ่งทีมแดง-ขาว ชิงถ้วยเกียรติยศประจำโรงเรียน ลงชื่อได้ที่ห้องกิจกรรมนักเรียน', tag:'กิจกรรมนักเรียน'},
+  {date:'28 ก.ค. — วิชาการ', title:'ตารางสอบกลางภาคออกแล้ว', desc:'นักเรียนปี 1–3 ตรวจสอบตารางสอบและห้องสอบได้ที่บอร์ดประกาศหน้าตึกอำนวยการ หากมีข้อสงสัยติดต่อครูประจำวิชา', tag:'วิชาการ'},
+  {date:'20 ก.ค. — ฝ่ายปกครอง', title:'เข้มงวดกฎการแต่งกายช่วงเปิดเทอม', desc:'ขอความร่วมมือนักเรียนแต่งกายให้ถูกระเบียบ ฝ่าฝืนซ้ำจะถูกบันทึกคะแนนความประพฤติตามระเบียบที่ประกาศไว้', tag:'ระเบียบ'},
+  {date:'15 ก.ค. — โรงเรียน', title:'ต้อนรับนักเรียนใหม่ปีการศึกษานี้', desc:'โรงเรียน GKR KAGE ขอต้อนรับนักเรียนใหม่ทุกคน ขอให้ทุกคนอ่านกฎระเบียบให้ครบก่อนเริ่มชีวิตในรั้วโรงเรียน', tag:'ต้อนรับ'},
+];
+let staffList = [
+  {name:'Kurasuno Yukimura', role:'ผู้อำนวยการโรงเรียน', desc:'ผู้ก่อตั้งและผู้ดูแลกฎเกียรติยศของ GKR KAGE ผู้ถืออำนาจสูงสุดในการตัดสินใจเรื่องระเบียบและการรับเข้าเรียนของโรงเรียน'},
+];
+let gangs = [];
+let students = [];
+let scheduleData = { 'ปี 1':[], 'ปี 2':[], 'ปี 3':[] };
+const days = ['จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์'];
+const periods = ['คาบ 1','คาบ 2','คาบ 3','คาบ 4','คาบ 5'];
+
+/* ---- public render: news ---- */
+function renderNews(){
+  const box = document.getElementById('newsGrid');
+  if(!box) return;
+  box.innerHTML = newsItems.map(n=>`
+    <div class="card news-card">
+      <div class="news-date">${n.date}</div>
+      <h3>${n.title}</h3>
+      <p>${n.desc}</p>
+      <span class="tag">${n.tag}</span>
+    </div>
+  `).join('');
+}
+
+/* ---- public render: staff ---- */
+function renderStaff(){
+  const box = document.getElementById('staffGrid');
+  if(!box) return;
+  box.innerHTML = staffList.map(s=>`
+    <div class="card staff-card">
+      <div class="staff-avatar">${s.name.charAt(0)}</div>
+      <h3>${s.name}</h3>
+      <div class="staff-role">${s.role}</div>
+      <p>${s.desc}</p>
+    </div>
+  `).join('');
+}
+
+/* ---- public render: gangs ---- */
+function renderGangsPublic(){
+  const box = document.getElementById('gangsContent');
+  if(!box) return;
+  if(gangs.length === 0){
+    box.innerHTML = `
+      <div class="card" style="max-width:560px; text-align:center; padding:56px 30px;">
+        <div class="jp" style="font-size:40px; color:var(--red-deep); margin-bottom:18px;">影</div>
+        <h3 style="font-family:'Shippori Mincho',serif; font-size:19px; margin-bottom:10px;">ยังไม่มีแก๊งที่ขึ้นทะเบียนอย่างเป็นทางการ</h3>
+        <p style="color:var(--ink-dim); font-size:13.5px; line-height:1.8;">ระบบขึ้นทะเบียนแก๊งอยู่ระหว่างเปิดใช้งาน ติดตามประกาศได้ที่หน้าข่าวสาร หรือติดต่อฝ่ายปกครองหากต้องการก่อตั้งแก๊งใหม่</p>
+      </div>`;
+    return;
+  }
+  box.innerHTML = `<div class="grid grid-2">${gangs.map(g=>`
+    <div class="card gang-card">
+      <div class="gang-head">
+        <div class="gang-emblem" style="border-color:var(--red); color:var(--red-glow);">${g.emblem||'影'}</div>
+        <h3>${g.name}</h3>
+        <div class="gang-motto">${g.motto||''}</div>
+        <p>${g.desc||''}</p>
+      </div>
+      <div class="gang-meta">
+        <div>สมาชิก<strong>${g.members||'—'}</strong></div>
+        <div>พื้นที่<strong>${g.territory||'—'}</strong></div>
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+
+/* ---------------- students ---------------- */
+/* ---------------- students (public) ---------------- */
+const yearTabs = document.getElementById('yearTabs');
+const yearContent = document.getElementById('yearContent');
+function renderYear(y){
+  const list = students.filter(s=>s.year===y);
+  yearContent.innerHTML = list.length ? list.map(s=>`
+    <div class="class-row"><div class="name">${s.name}</div><div class="meta">${s.year}</div></div>
+  `).join('') : '<div class="class-row"><div class="meta">ยังไม่มีนักเรียนในระดับชั้นนี้</div></div>';
+  document.querySelectorAll('#yearTabs .subtab').forEach(b=>b.classList.toggle('active', b.textContent===y));
+}
+['ปี 1','ปี 2','ปี 3'].forEach((y,i)=>{
+  const b = document.createElement('button');
+  b.className = 'subtab'+(i===0?' active':'');
+  b.textContent = y;
+  b.onclick = ()=>renderYear(y);
+  yearTabs.appendChild(b);
+});
+renderYear('ปี 1');
+
+/* ---------------- schedule (public) ---------------- */
+const schedTabs = document.getElementById('schedTabs');
+const schedTable = document.getElementById('schedTable');
+function renderSchedule(y){
+  const subs = scheduleData[y];
+  document.querySelectorAll('#schedTabs .subtab').forEach(b=>b.classList.toggle('active', b.textContent===y));
+  if(!subs || subs.length === 0){
+    schedTable.innerHTML = `<tbody><tr><td style="padding:24px; color:var(--ink-faint); text-align:center;">ยังไม่มีการประกาศตารางเรียนของ ${y}</td></tr></tbody>`;
+    return;
+  }
+  let head = '<thead><tr><th>เวลา</th>'+days.map(d=>`<th>${d}</th>`).join('')+'</tr></thead>';
+  let body = '<tbody>'+periods.map((p,pi)=>{
+    return '<tr><td>'+p+'</td>'+days.map((d,di)=>`<td>${subs[(pi+di)%subs.length]}</td>`).join('')+'</tr>';
+  }).join('')+'</tbody>';
+  schedTable.innerHTML = head+body;
+}
+Object.keys(scheduleData).forEach((y,i)=>{
+  const b = document.createElement('button');
+  b.className = 'subtab'+(i===0?' active':'');
+  b.textContent = y;
+  b.onclick = ()=>renderSchedule(y);
+  schedTabs.appendChild(b);
+});
+renderSchedule('ปี 1');
+
+/* initial public render */
+renderNews();
+renderStaff();
+renderGangsPublic();
+
+/* ---------------- backend / admin gate ---------------- */
+const REVIEWER_NAME = 'kurasuno yukimura';
+function checkGate(){
+  const val = document.getElementById('gateInput').value.trim().toLowerCase();
+  const errBox = document.getElementById('gateError');
+  if(val === REVIEWER_NAME){
+    document.getElementById('gateWrap').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    initAdminTabs();
+    refreshAllAdminLists();
+  } else {
+    errBox.textContent = 'ไม่มีสิทธิ์เข้าถึงระบบนี้';
+    errBox.classList.add('show');
+  }
+}
+
+const adminSections = [
+  {id:'submissions', th:'ใบสมัคร'},
+  {id:'news', th:'ข่าวสาร'},
+  {id:'gangs', th:'แก๊ง'},
+  {id:'staff', th:'บุคลากร'},
+  {id:'students', th:'นักเรียน'},
+  {id:'schedule', th:'ตารางเรียน'},
+];
+function initAdminTabs(){
+  const tabWrap = document.getElementById('adminTabs');
+  if(tabWrap.childElementCount) return;
+  adminSections.forEach((s,i)=>{
+    const b = document.createElement('button');
+    b.className = 'admin-subtab'+(i===0?' active':'');
+    b.textContent = s.th;
+    b.onclick = ()=>{
+      document.querySelectorAll('.admin-subtab').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      document.querySelectorAll('.admin-panel-body').forEach(x=>x.classList.remove('active'));
+      document.getElementById('admin-'+s.id).classList.add('active');
+    };
+    tabWrap.appendChild(b);
+  });
+  document.getElementById('admin-submissions').classList.add('active');
+}
+function refreshAllAdminLists(){
+  renderSubmissions();
+  renderNewsAdmin();
+  renderGangAdmin();
+  renderStaffAdmin();
+  renderStudentAdmin();
+}
+
+function renderSubmissions(){
+  const box = document.getElementById('submissionList');
+  if(!box) return;
+  if(submissions.length === 0){
+    box.innerHTML = '<div class="card" style="text-align:center; color:var(--ink-faint); font-size:13px;">ยังไม่มีใบสมัครใหม่ในเซสชันนี้</div>';
+    return;
+  }
+  box.innerHTML = submissions.map((s,i)=>{
+    let borderStyle = '';
+    let tagHtml = '<span class="tag">รอตรวจสอบ</span>';
+    if(s.status === 'approved'){
+      borderStyle = 'border-color:var(--green);';
+      tagHtml = '<span class="tag" style="border-color:var(--green); color:var(--green-glow);">ผ่าน</span>';
+    } else if(s.status === 'rejected'){
+      borderStyle = 'opacity:.65;';
+      tagHtml = '<span class="tag" style="border-color:var(--red-deep); color:var(--ink-faint);">ไม่ผ่าน</span>';
+    }
+    return `
+    <div class="card submission-card" style="margin-bottom:14px; ${borderStyle}" onclick="openDetail(${i})">
+      <div class="news-date">${s.time}</div>
+      <h3 style="font-size:16px; margin-bottom:8px;">${s.name} — ${s.year}</h3>
+      <p style="font-size:13px; color:var(--ink-dim);">Discord: ${s.discord}</p>
+      ${tagHtml}
+    </div>`;
+  }).join('');
+}
+function openDetail(i){
+  const s = submissions[i];
+  const statusLabel = s.status==='approved' ? 'ผ่าน' : s.status==='rejected' ? 'ไม่ผ่าน' : 'รอตรวจสอบ';
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-row"><div class="k">ชื่อ-นามสกุลในเกม</div><div class="v">${s.name}</div></div>
+    <div class="detail-row"><div class="k">Discord ID</div><div class="v">${s.discord}</div></div>
+    <div class="detail-row"><div class="k">ระดับชั้นที่สมัคร</div><div class="v">${s.year}</div></div>
+    <div class="detail-row"><div class="k">เหตุผลที่อยากเข้าเรียน</div><div class="v">${s.reason || '(ไม่ได้ระบุเหตุผล)'}</div></div>
+    <div class="detail-row"><div class="k">เวลาที่ส่งใบสมัคร</div><div class="v">${s.time}</div></div>
+    <div class="detail-row"><div class="k">สถานะปัจจุบัน</div><div class="v">${statusLabel}</div></div>
+    <div style="display:flex; gap:12px; margin-top:22px;">
+      <button class="btn" style="flex:1; background:var(--green); color:#fff; border:1px solid var(--green);" onclick="approveSubmission(${i})">ผ่าน</button>
+      <button class="btn btn-ghost" style="flex:1; border-color:var(--red-deep); color:var(--red-glow);" onclick="rejectSubmission(${i})">ไม่ผ่าน</button>
+    </div>
+  `;
+  document.getElementById('detailOverlay').classList.add('show');
+}
+function closeDetail(e){
+  document.getElementById('detailOverlay').classList.remove('show');
+}
+function approveSubmission(i){
+  const s = submissions[i];
+  s.status = 'approved';
+  if(!students.some(st=>st.name===s.name && st.year===s.year)){
+    students.push({name:s.name, year:s.year});
+  }
+  renderSubmissions();
+  renderStudentAdmin();
+  renderYear(document.querySelector('#yearTabs .subtab.active').textContent);
+  closeDetail();
+}
+function rejectSubmission(i){
+  submissions[i].status = 'rejected';
+  renderSubmissions();
+  closeDetail();
+}
+
+/* ---- admin: news ---- */
+function renderNewsAdmin(){
+  const box = document.getElementById('newsAdminList');
+  box.innerHTML = newsItems.map((n,i)=>`
+    <div class="admin-row">
+      <div class="info"><strong>${n.title}</strong>${n.date} · ${n.tag}</div>
+      <button class="btn-del" onclick="deleteNews(${i})">ลบ</button>
+    </div>
+  `).join('') || '<div class="admin-row"><div class="info">ยังไม่มีข่าว</div></div>';
+}
+function addNews(){
+  const title = document.getElementById('nTitle').value.trim();
+  const date = document.getElementById('nDate').value.trim();
+  const tag = document.getElementById('nTag').value.trim();
+  const desc = document.getElementById('nDesc').value.trim();
+  if(!title) return;
+  newsItems.unshift({title, date: date || '—', tag: tag || 'ทั่วไป', desc});
+  ['nTitle','nDate','nTag','nDesc'].forEach(id=>document.getElementById(id).value='');
+  renderNewsAdmin(); renderNews();
+}
+function deleteNews(i){ newsItems.splice(i,1); renderNewsAdmin(); renderNews(); }
+
+/* ---- admin: gangs ---- */
+function renderGangAdmin(){
+  const box = document.getElementById('gangAdminList');
+  box.innerHTML = gangs.map((g,i)=>`
+    <div class="admin-row">
+      <div class="info"><strong>${g.name}</strong>พื้นที่: ${g.territory||'—'} · สมาชิก: ${g.members||'—'}</div>
+      <button class="btn-del" onclick="deleteGang(${i})">ลบ</button>
+    </div>
+  `).join('') || '<div class="admin-row"><div class="info">ยังไม่มีแก๊งที่ขึ้นทะเบียน</div></div>';
+}
+function addGang(){
+  const name = document.getElementById('gName').value.trim();
+  if(!name) return;
+  gangs.unshift({
+    name,
+    emblem: document.getElementById('gEmblem').value.trim(),
+    motto: document.getElementById('gMotto').value.trim(),
+    territory: document.getElementById('gTerritory').value.trim(),
+    members: document.getElementById('gMembers').value.trim(),
+    desc: document.getElementById('gDesc').value.trim(),
+  });
+  ['gName','gEmblem','gMotto','gTerritory','gMembers','gDesc'].forEach(id=>document.getElementById(id).value='');
+  renderGangAdmin(); renderGangsPublic();
+}
+function deleteGang(i){ gangs.splice(i,1); renderGangAdmin(); renderGangsPublic(); }
+
+/* ---- admin: staff ---- */
+function renderStaffAdmin(){
+  const box = document.getElementById('staffAdminList');
+  box.innerHTML = staffList.map((s,i)=>`
+    <div class="admin-row">
+      <div class="info"><strong>${s.name}</strong>${s.role}</div>
+      <button class="btn-del" onclick="deleteStaff(${i})">ลบ</button>
+    </div>
+  `).join('') || '<div class="admin-row"><div class="info">ยังไม่มีบุคลากร</div></div>';
+}
+function addStaff(){
+  const name = document.getElementById('sfName').value.trim();
+  const role = document.getElementById('sfRole').value.trim();
+  if(!name || !role) return;
+  staffList.push({name, role, desc: document.getElementById('sfDesc').value.trim()});
+  ['sfName','sfRole','sfDesc'].forEach(id=>document.getElementById(id).value='');
+  renderStaffAdmin(); renderStaff();
+}
+function deleteStaff(i){ staffList.splice(i,1); renderStaffAdmin(); renderStaff(); }
+
+/* ---- admin: students ---- */
+function renderStudentAdmin(){
+  const box = document.getElementById('studentAdminList');
+  box.innerHTML = students.map((s,i)=>`
+    <div class="admin-row">
+      <div class="info"><strong>${s.name}</strong></div>
+      <select class="year-select" onchange="changeStudentYear(${i}, this.value)">
+        <option ${s.year==='ปี 1'?'selected':''}>ปี 1</option>
+        <option ${s.year==='ปี 2'?'selected':''}>ปี 2</option>
+        <option ${s.year==='ปี 3'?'selected':''}>ปี 3</option>
+      </select>
+      <button class="btn-del" onclick="deleteStudent(${i})">ลบ</button>
+    </div>
+  `).join('') || '<div class="admin-row"><div class="info">ยังไม่มีนักเรียน</div></div>';
+}
+function addStudent(){
+  const name = document.getElementById('stuName').value.trim();
+  const year = document.getElementById('stuYear').value;
+  if(!name) return;
+  students.push({name, year});
+  document.getElementById('stuName').value = '';
+  renderStudentAdmin();
+  renderYear(document.querySelector('#yearTabs .subtab.active').textContent);
+}
+function changeStudentYear(i, newYear){
+  students[i].year = newYear;
+  renderStudentAdmin();
+  renderYear(document.querySelector('#yearTabs .subtab.active').textContent);
+}
+function deleteStudent(i){
+  students.splice(i,1);
+  renderStudentAdmin();
+  renderYear(document.querySelector('#yearTabs .subtab.active').textContent);
+}
+
+/* ---- admin: schedule ---- */
+function saveSchedule(){
+  const year = document.getElementById('scYear').value;
+  const subs = ['sc1','sc2','sc3','sc4','sc5'].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
+  if(subs.length === 0) return;
+  scheduleData[year] = subs;
+  renderSchedule(document.querySelector('#schedTabs .subtab.active').textContent);
+}
+
+/* ---------------- ember particle background ---------------- */
+const canvas = document.getElementById('ember-canvas');
+const ctx = canvas.getContext('2d');
+let W,H;
+function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+
+const particles = Array.from({length:46}, ()=>({
+  x: Math.random()*W, y: Math.random()*H+H*0.2,
+  r: Math.random()*1.6+0.4,
+  speed: Math.random()*0.35+0.08,
+  drift: (Math.random()-0.5)*0.25,
+  alpha: Math.random()*0.5+0.15
+}));
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function animate(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p=>{
+    ctx.beginPath();
+    ctx.fillStyle = `rgba(200,16,46,${p.alpha})`;
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fill();
+    if(!reduceMotion){
+      p.y -= p.speed;
+      p.x += p.drift;
+      if(p.y < -10){ p.y = H+10; p.x = Math.random()*W; }
+    }
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
